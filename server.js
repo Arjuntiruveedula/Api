@@ -64,47 +64,67 @@ app.post('/todos', async (req, res) => {
   }
 });
 
-// Update a todo
+// Update a todo (Using _id explicitly for MongoDB)
 app.put('/todos/:id', async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params;  // Get the id from the URL parameter
   const { title, description } = req.body;
+
   try {
-    const updatedTodo = await Todo.findByIdAndUpdate(id, { title, description }, { new: true });
+    // Explicitly using _id for MongoDB query
+    const updatedTodo = await Todo.findOneAndUpdate({ _id: id }, { title, description }, { new: true });
+    if (!updatedTodo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
     res.json(updatedTodo);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update todo' });
   }
 });
 
-// Mark a todo as completed
+// Mark a todo as completed (Using _id explicitly for MongoDB)
 app.put('/todos/complete/:id', async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params;  // Get the id from the URL parameter
   const completedOn = new Date();
+
   try {
-    const updatedTodo = await Todo.findByIdAndUpdate(id, { completed: true, completed_on: completedOn }, { new: true });
+    // Explicitly using _id for MongoDB query
+    const updatedTodo = await Todo.findOneAndUpdate({ _id: id }, { completed: true, completed_on: completedOn }, { new: true });
+    if (!updatedTodo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
     res.json(updatedTodo);
   } catch (err) {
     res.status(500).json({ error: 'Failed to complete todo' });
   }
 });
 
-// Delete a todo
+// Delete a todo (Using _id explicitly for MongoDB)
 app.delete('/todos/:id', async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params;  // Get the id from the URL parameter
+
   try {
-    await Todo.findByIdAndDelete(id);
-    res.status(204).send();
+    // Explicitly using _id for MongoDB query
+    const deletedTodo = await Todo.findOneAndDelete({ _id: id });
+    if (!deletedTodo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
+    res.status(204).send();  // No content returned after deletion
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete todo' });
   }
 });
 
-// Delete a completed todo
+// Delete a completed todo (Using _id explicitly for MongoDB)
 app.delete('/completed/:id', async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params;  // Get the id from the URL parameter
+
   try {
-    await Todo.findByIdAndDelete(id);
-    res.status(204).send();
+    // Explicitly using _id for MongoDB query
+    const deletedTodo = await Todo.findOneAndDelete({ _id: id });
+    if (!deletedTodo) {
+      return res.status(404).json({ error: 'Completed Todo not found' });
+    }
+    res.status(204).send();  // No content returned after deletion
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete completed todo' });
   }
